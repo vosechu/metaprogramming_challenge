@@ -17,34 +17,33 @@ describe "Counting calls" do
 
     it "should count a class method added via extend" do
       pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'module A; def foo; end; end; class B; extend A; end; 10.times{B.foo}'`
-      out.should eq "B#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='B#foo2' ruby -r ./lib/solution.rb -e 'module A; def foo2; end; end; class B; extend A; end; 10.times{B.foo2}'`
+      out.should eq "B#foo2 called 10 times\n"
     end
 
     it "should count a instance method added via def" do
       pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'class B; def foo; end; end; 10.times{B.new.foo}'`
-      out.should eq "B#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='B#foo3' ruby -r ./lib/solution.rb -e 'class B; def foo3; end; end; 10.times{B.new.foo3}'`
+      out.should eq "B#foo3 called 10 times\n"
     end
 
     it "should count a class method added via def" do
       pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'class B; def self.foo; end; end; 10.times{B.foo}'`
-      out.should eq "B#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='B#foo4' ruby -r ./lib/solution.rb -e 'class B; def self.foo4; end; end; 10.times{B.foo4}'`
+      out.should eq "B#foo4 called 10 times\n"
     end
   end
 
-  context "existing class, new method" do
+  context "existing class, new method", :sot => true do
     it "should output the number of calls for instance methods" do
-      pending('not in spec')
-      out = `COUNT_CALLS_TO='String#foo' ruby -r ./lib/solution.rb -e 'class String; def foo; end; end; 10.times{String.new.foo}'`
-      out.should eq "String#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='String#foo2' ruby -r ./lib/solution.rb -e 'class String; def foo2; end; end; 10.times{String.new.foo2}'`
+      out.should eq "String#foo2 called 10 times\n"
     end
 
     it "should output the number of calls for class methods" do
       pending('not in spec')
-      out = `COUNT_CALLS_TO='String#foo' ruby -r ./lib/solution.rb -e 'class String; def self.foo; end; end; 10.times{String.foo}'`
-      out.should eq "String#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='String#foo3' ruby -r ./lib/solution.rb -e 'class String; def self.foo3; end; end; 10.times{String.foo3}'`
+      out.should eq "String#foo3 called 10 times\n"
     end
   end
 

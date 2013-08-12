@@ -10,7 +10,6 @@ class CallPatcher
   attr_reader :target, :mod, :func, :instance_or_class
 
   def initialize(target)
-    COUNTS[target] = 0
     @target = target
     @mod, @func, @instance_or_class = parse
   end
@@ -75,20 +74,24 @@ class CallPatcher
   end
 
   def class_exists_but_no_method?
-    mod.is_a?(Class) && func.is_a?(String)
+    mod.is_a?(Class) && !mod.respond_to?(func.to_sym)
   end
 
   # Patchers ========================================================= #
 
   def wrap_method
-    mod.module_eval("
-      def #{func}_with_counter
-        CallPatcher::COUNTS['#{target}'] += 1
-        #{func}_without_counter
-      end
-      alias_method :#{func}_without_counter, :#{func}
-      alias_method :#{func}, :#{func}_with_counter
-    ")
+    if CallPatcher::COUNTS[target].nil?
+      COUNTS[target] = 0
+
+      mod.module_eval("
+        def #{func}_with_counter
+          CallPatcher::COUNTS['#{target}'] += 1
+          #{func}_without_counter
+        end
+        alias_method :#{func}_without_counter, :#{func}
+        alias_method :#{func}, :#{func}_with_counter
+      ")
+    end
   end
 
   def wrap_class_method
@@ -97,20 +100,19 @@ class CallPatcher
 
   # Patcher for methods added after the fact. Doesn't work for modules
   def watch_for_method_definition
-    # # Not in spec
-    # mod.module_eval("
-    #   def self.method_added(meth)
-    #     if meth == \"#{func}\"
-    #       CallPatcher.new(\"#{target}\").patch
-    #     end
-    #   end
+    mod.module_eval("
+      def self.method_added(meth)
+        if meth == \"#{func}\".to_sym
+          CallPatcher.new(\"#{target}\").patch
+        end
+      end
 
-    #   def self.singleton_method_added(meth)
-    #     if meth == \"#{func}\"
-    #       CallPatcher.new(\"#{target}\").patch
-    #     end
-    #   end
-    # ")
+      def self.singleton_method_added(meth)
+        if meth == \"#{func}\"
+          CallPatcher.new(\"#{target}\").patch
+        end
+      end
+    ")
   end
 
   # General watcher on Module which watches for a class/module to
