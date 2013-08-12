@@ -46,6 +46,10 @@ describe "Module/function splitting" do
     CallPatcher.new('Base64.encode64').parse.should eq([Base64, :encode64, :class])
   end
 
+  it "should return a string if the class exists but not the method" do
+    CallPatcher.new('String#happiness').parse.should eq([String, "happiness", nil])
+  end
+
   it "should split into multiple vars" do
     mod, func, instance_or_class = CallPatcher.new('String#size').parse
     mod.should eq(String)
@@ -72,6 +76,7 @@ describe "Counting simple things" do
   end
 end
 
+# Capture puts'
 # http://stackoverflow.com/a/11349621/203731
 def capture_stdout(&block)
   original_stdout = $stdout
