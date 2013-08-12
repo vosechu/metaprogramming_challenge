@@ -29,9 +29,36 @@ class CallPatcher
       "
       eval(patch)
     else
-      # FIXME: Create a watcher that we can target for when methods are
-      # added after the fact.
-      puts "hi mom"
+      # # Patcher for methods added after the fact. Doesn't work for modules
+      # # being included
+      # patch = "
+      #   class ::#{mod}
+      #     def self.method_added(meth)
+      #       if meth == \"#{func}\"
+      #         puts \"Patching...\"
+      #         CallPatcher.new(\"#{target}\").patch
+      #       else
+      #         puts \"not Patching...\"
+      #         puts meth
+      #       end
+      #     end
+      #   end
+      # "
+      # puts patch
+      # eval(patch)
+      patch = "
+        class ::Module
+          def include_with_watcher(*args)
+            include_without_watcher(*args)
+            if \"#{mod}\" == self.to_s
+              CallPatcher.new(\"#{target}\").patch
+            end
+          end
+          alias_method :include_without_watcher, :include
+          alias_method :include, :include_with_watcher
+        end
+      "
+      eval(patch)
     end
   end
 

@@ -12,7 +12,7 @@ describe "Counting calls" do
   context "B#foo" do
     it "should output the number of calls" do
       out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'module A; def foo; end; end; class B; include A; end; 10.times{B.new.foo}'`
-      out.should eq "B#foo called 10 times"
+      out.should eq "B#foo called 10 times\n"
     end
   end
 
