@@ -82,7 +82,6 @@ class CallPatcher
   def wrap_method
     if CallPatcher::COUNTS[target].nil?
       COUNTS[target] = 0
-
       mod.module_eval("
         def #{func}_with_counter
           CallPatcher::COUNTS['#{target}'] += 1
@@ -95,7 +94,19 @@ class CallPatcher
   end
 
   def wrap_class_method
-    # Not in spec
+    if CallPatcher::COUNTS[target].nil?
+      COUNTS[target] = 0
+      mod.module_eval("
+        class << #{mod}
+          def #{func}_with_counter
+            CallPatcher::COUNTS['#{target}'] += 1
+            #{func}_without_counter
+          end
+          alias_method :#{func}_without_counter, :#{func}
+          alias_method :#{func}, :#{func}_with_counter
+        end
+      ")
+    end
   end
 
   # Patcher for methods added after the fact. Doesn't work for modules
@@ -108,7 +119,7 @@ class CallPatcher
       end
 
       def self.singleton_method_added(meth)
-        if meth == \"#{func}\"
+        if meth == \"#{func}\".to_sym
           CallPatcher.new(\"#{target}\").patch
         end
       end

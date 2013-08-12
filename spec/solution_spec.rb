@@ -34,14 +34,13 @@ describe "Counting calls" do
     end
   end
 
-  context "existing class, new method", :sot => true do
+  context "existing class, new method" do
     it "should output the number of calls for instance methods" do
       out = `COUNT_CALLS_TO='String#foo2' ruby -r ./lib/solution.rb -e 'class String; def foo2; end; end; 10.times{String.new.foo2}'`
       out.should eq "String#foo2 called 10 times\n"
     end
 
     it "should output the number of calls for class methods" do
-      pending('not in spec')
       out = `COUNT_CALLS_TO='String#foo3' ruby -r ./lib/solution.rb -e 'class String; def self.foo3; end; end; 10.times{String.foo3}'`
       out.should eq "String#foo3 called 10 times\n"
     end
