@@ -4,6 +4,8 @@ This is a small function counter which is capable of giving you a rough idea
 how many times a function is called during runtime via stdout without
 sacrificing too much performance.
 
+Response to: https://gist.github.com/samg/5b287544800f8a6cddf2
+
 ## Test runner
 
 `rspec` or `bundle && autotest`
