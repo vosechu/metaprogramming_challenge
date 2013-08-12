@@ -2,17 +2,49 @@ require 'rspec'
 
 describe "Counting calls" do
 
-  context "String#size" do
+  context "existing class, existing method" do
     it "should output the number of calls" do
       out = `COUNT_CALLS_TO='String#size' ruby -r ./lib/solution.rb -e '(1..100).each{|i| i.to_s.size if i.odd? }'`
       out.should eq "String#size called 50 times\n"
     end
   end
 
-  context "B#foo" do
-    it "should output the number of calls" do
+  context "non-existent class, included/created method" do
+    it "should count a instance method added via include" do
       out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'module A; def foo; end; end; class B; include A; end; 10.times{B.new.foo}'`
       out.should eq "B#foo called 10 times\n"
+    end
+
+    it "should count a class method added via extend" do
+      pending('not in spec')
+      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'module A; def foo; end; end; class B; extend A; end; 10.times{B.foo}'`
+      out.should eq "B#foo called 10 times\n"
+    end
+
+    it "should count a instance method added via def" do
+      pending('not in spec')
+      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'class B; def foo; end; end; 10.times{B.new.foo}'`
+      out.should eq "B#foo called 10 times\n"
+    end
+
+    it "should count a class method added via def" do
+      pending('not in spec')
+      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'class B; def self.foo; end; end; 10.times{B.foo}'`
+      out.should eq "B#foo called 10 times\n"
+    end
+  end
+
+  context "existing class, new method" do
+    it "should output the number of calls for instance methods" do
+      pending('not in spec')
+      out = `COUNT_CALLS_TO='String#foo' ruby -r ./lib/solution.rb -e 'class String; def foo; end; end; 10.times{String.new.foo}'`
+      out.should eq "String#foo called 10 times\n"
+    end
+
+    it "should output the number of calls for class methods" do
+      pending('not in spec')
+      out = `COUNT_CALLS_TO='String#foo' ruby -r ./lib/solution.rb -e 'class String; def self.foo; end; end; 10.times{String.foo}'`
+      out.should eq "String#foo called 10 times\n"
     end
   end
 
@@ -22,7 +54,6 @@ describe "Module/function splitting" do
 
   before(:each) do
     # Use load in this case because we want to repatch things each time
-    # FIXME: Is there a way to make rspec force a new binding each time?
     load './lib/solution.rb'
   end
 
@@ -60,8 +91,8 @@ end
 
 describe "Counting simple things" do
   before(:each) do
-    ENV['COUNT_CALLS_TO'] = "String#upcase"
     load './lib/solution.rb'
+    CallPatcher.new('String#upcase').patch
   end
 
   # # FIXME: Find a way to unmake these changes each time we run
@@ -70,13 +101,13 @@ describe "Counting simple things" do
   # end
 
   it "should count to 1" do
-    $counts.should eq(0)
+    CallPatcher::COUNTS['String#upcase'].should eq(0)
     "hello".upcase
-    $counts.should eq(1)
+    CallPatcher::COUNTS['String#upcase'].should eq(1)
   end
 end
 
-# Capture puts'
+# Capture puts output
 # http://stackoverflow.com/a/11349621/203731
 def capture_stdout(&block)
   original_stdout = $stdout
