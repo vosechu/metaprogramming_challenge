@@ -7,7 +7,8 @@
 class CallPatcher
   COUNTS = {} if !defined?(COUNTS)
 
-  attr_reader :target, :mod, :func, :instance_or_class
+  attr_reader :target, :func, :instance_or_class
+  attr_accessor :mod
 
   def initialize(target)
     @target = target
@@ -25,6 +26,8 @@ class CallPatcher
     elsif class_exists_but_no_method?
       watch_for_method_definition
     else
+      create_class
+      watch_for_method_definition
       watch_for_module_include
       watch_for_module_extend
     end
@@ -75,7 +78,7 @@ class CallPatcher
   end
 
   def class_exists_but_no_method?
-    mod.is_a?(Class) && !mod.respond_to?(func.to_sym) && !mod.new.respond_to?(func.to_sym)
+    mod.is_a?(Class) && !func.is_a?(Symbol)
   end
 
   # Patchers ========================================================= #
@@ -154,6 +157,13 @@ class CallPatcher
       alias_method :extend_without_watcher, :extend
       alias_method :extend, :extend_with_watcher
     ")
+  end
+
+  # Class creation =================================================== #
+
+  def create_class
+    Kernel.const_set(mod.to_sym, Class.new(Object))
+    @mod = Kernel.const_get(mod.to_sym)
   end
 end
 
