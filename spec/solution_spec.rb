@@ -16,7 +16,7 @@ describe "Counting calls" do
     end
 
     it "should count a class method added via extend" do
-      pending('not in spec')
+      # pending('not in spec')
       out = `COUNT_CALLS_TO='B#foo2' ruby -r ./lib/solution.rb -e 'module A; def foo2; end; end; class B; extend A; end; 10.times{B.foo2}'`
       out.should eq "B#foo2 called 10 times\n"
     end

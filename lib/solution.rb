@@ -74,7 +74,7 @@ class CallPatcher
   end
 
   def class_exists_but_no_method?
-    mod.is_a?(Class) && !mod.respond_to?(func.to_sym)
+    mod.is_a?(Class) && !mod.respond_to?(func.to_sym) && !mod.new.respond_to?(func.to_sym)
   end
 
   # Patchers ========================================================= #
@@ -130,25 +130,24 @@ class CallPatcher
   # include another module. There is no hook for a method that's added
   # via `include` so we have to watch for all includes.
   def watch_for_module_include
-    # FIXME: This should have a method called targets which watches
-    # for all target combos
     Module.module_eval("
-      def target_module
-        \"#{mod}\"
-      end
-
-      def target
-        \"#{target}\"
-      end
-
       def include_with_watcher(*args)
         include_without_watcher(*args)
-        if target_module == self.to_s
-          CallPatcher.new(target).patch
+        if \"#{mod}\" == self.to_s
+          CallPatcher.new(\"#{target}\").patch
         end
       end
       alias_method :include_without_watcher, :include
       alias_method :include, :include_with_watcher
+
+      def extend_with_watcher(*args)
+        extend_without_watcher(*args)
+        if \"#{mod}\" == self.to_s
+          CallPatcher.new(\"#{target}\").patch
+        end
+      end
+      alias_method :extend_without_watcher, :extend
+      alias_method :extend, :extend_with_watcher
     ")
   end
 end
