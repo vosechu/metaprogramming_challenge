@@ -11,38 +11,35 @@ describe "Counting calls" do
 
   context "non-existent class, included/created method" do
     it "should count a instance method added via include" do
-      out = `COUNT_CALLS_TO='B#foo' ruby -r ./lib/solution.rb -e 'module A; def foo; end; end; class B; include A; end; 10.times{B.new.foo}'`
-      out.should eq "B#foo called 10 times\n"
+      out = `COUNT_CALLS_TO='B#included_foo' ruby -r ./lib/solution.rb -e 'module A; def included_foo; end; end; class B; include A; end; 10.times{B.new.included_foo}'`
+      out.should eq "B#included_foo called 10 times\n"
     end
 
     it "should count a class method added via extend" do
-      # pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo2' ruby -r ./lib/solution.rb -e 'module A; def foo2; end; end; class B; extend A; end; 10.times{B.foo2}'`
-      out.should eq "B#foo2 called 10 times\n"
+      out = `COUNT_CALLS_TO='B#extended_foo' ruby -r ./lib/solution.rb -e 'module A; def extended_foo; end; end; class B; extend A; end; 10.times{B.extended_foo}'`
+      out.should eq "B#extended_foo called 10 times\n"
     end
 
     it "should count a instance method added via def" do
-      pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo3' ruby -r ./lib/solution.rb -e 'class B; def foo3; end; end; 10.times{B.new.foo3}'`
-      out.should eq "B#foo3 called 10 times\n"
+      out = `COUNT_CALLS_TO='B#instance_method_foo' ruby -r ./lib/solution.rb -e 'class B; def instance_method_foo; end; end; 10.times{B.new.instance_method_foo}'`
+      out.should eq "B#instance_method_foo called 10 times\n"
     end
 
     it "should count a class method added via def" do
-      pending('not in spec')
-      out = `COUNT_CALLS_TO='B#foo4' ruby -r ./lib/solution.rb -e 'class B; def self.foo4; end; end; 10.times{B.foo4}'`
-      out.should eq "B#foo4 called 10 times\n"
+      out = `COUNT_CALLS_TO='B#class_method_foo' ruby -r ./lib/solution.rb -e 'class B; def self.class_method_foo; end; end; 10.times{B.class_method_foo}'`
+      out.should eq "B#class_method_foo called 10 times\n"
     end
   end
 
   context "existing class, new method" do
     it "should output the number of calls for instance methods" do
-      out = `COUNT_CALLS_TO='String#foo2' ruby -r ./lib/solution.rb -e 'class String; def foo2; end; end; 10.times{String.new.foo2}'`
-      out.should eq "String#foo2 called 10 times\n"
+      out = `COUNT_CALLS_TO='String#extended_foo' ruby -r ./lib/solution.rb -e 'class String; def extended_foo; end; end; 10.times{String.new.extended_foo}'`
+      out.should eq "String#extended_foo called 10 times\n"
     end
 
     it "should output the number of calls for class methods" do
-      out = `COUNT_CALLS_TO='String#foo3' ruby -r ./lib/solution.rb -e 'class String; def self.foo3; end; end; 10.times{String.foo3}'`
-      out.should eq "String#foo3 called 10 times\n"
+      out = `COUNT_CALLS_TO='String#instance_method_foo' ruby -r ./lib/solution.rb -e 'class String; def self.instance_method_foo; end; end; 10.times{String.instance_method_foo}'`
+      out.should eq "String#instance_method_foo called 10 times\n"
     end
   end
 

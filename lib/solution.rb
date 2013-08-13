@@ -26,6 +26,7 @@ class CallPatcher
       watch_for_method_definition
     else
       watch_for_module_include
+      watch_for_module_extend
     end
 
     # Singleton method
@@ -139,7 +140,11 @@ class CallPatcher
       end
       alias_method :include_without_watcher, :include
       alias_method :include, :include_with_watcher
+    ")
+  end
 
+  def watch_for_module_extend
+    Module.module_eval("
       def extend_with_watcher(*args)
         extend_without_watcher(*args)
         if \"#{mod}\" == self.to_s
